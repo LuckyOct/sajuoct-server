@@ -26,16 +26,19 @@ public class KakaoAuthService implements SocialAuthService {
     @Override
     public SocialAuthUserInfoDto getAuthUserInfo(String accessToken) {
         KakaoUserInfoResponse userInfo = kakaoWebClientProxy.getUserInfo(accessToken);
-
-        if (!userInfo.getKakaoAccount().getIs_email_valid()
-            || !userInfo.getKakaoAccount().getIs_email_verified()) {
-            throw new RuntimeException("Kakao account email is not valid or verified");
-        }
+        validateResponse(userInfo);
 
         return SocialAuthUserInfoDto.builder()
             .socialId(String.valueOf(userInfo.getId()))
             .emailAddress(userInfo.getKakaoAccount().getEmail())
             .loginType(LOGIN_TYPE)
             .build();
+    }
+
+    private void validateResponse(KakaoUserInfoResponse response) {
+        if (!response.getKakaoAccount().getIs_email_valid()
+            || !response.getKakaoAccount().getIs_email_verified()) {
+            throw new RuntimeException("Kakao account email is not valid or verified");
+        }
     }
 }

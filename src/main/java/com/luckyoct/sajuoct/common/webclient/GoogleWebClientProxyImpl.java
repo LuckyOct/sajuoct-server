@@ -1,12 +1,13 @@
 package com.luckyoct.sajuoct.common.webclient;
 
-import com.luckyoct.sajuoct.user.dto.kakao.KakaoUserInfoResponse;
+import com.luckyoct.sajuoct.user.dto.google.GoogleUserInfoResponse;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import jakarta.annotation.PostConstruct;
 import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -18,12 +19,15 @@ import reactor.netty.http.client.HttpClient;
 
 @Component
 @Slf4j
-public class KakaoWebClientProxyImpl implements WebClientProxy {
+public class GoogleWebClientProxyImpl implements WebClientProxy {
 
     private WebClient webClient;
 
-    // https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api#req-user-info
-    private static final String GET_USERINFO_API_URL = "https://kapi.kakao.com/v2/user/me";
+    @Value("${google.api.key}")
+    private String GOOGLE_API_KEY;
+
+    // https://cloud.google.com/identity-platform/docs/use-rest-api?hl=ko#section-get-account-info
+    private static final String GET_USERINFO_API_URL = "https://identitytoolkit.googleapis.com/v1/accounts:lookup";
 
     @PostConstruct
     private void init() {
@@ -35,36 +39,36 @@ public class KakaoWebClientProxyImpl implements WebClientProxy {
                     .addHandlerLast(new WriteTimeoutHandler(5000)));
 
         webClient = WebClient.builder()
-            .defaultHeader(HttpHeaders.CONTENT_TYPE,
-                MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8")
+            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString())
             .clientConnector(new ReactorClientHttpConnector(httpClient))
             .build();
     }
 
     @Override
-    public KakaoUserInfoResponse getUserInfo(String accessToken) {
-        ResponseEntity<KakaoUserInfoResponse> response = webClient
-            .get()
-            .uri(GET_USERINFO_API_URL)
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-            .accept(MediaType.APPLICATION_JSON)
+    public GoogleUserInfoResponse getUserInfo(String accessToken) {
+        ResponseEntity<GoogleUserInfoResponse> response = webClient
+            .post()
+            .uri(uriBuilder -> uriBuilder.path(GET_USERINFO_API_URL)
+                .queryParam("key", GOOGLE_API_KEY)
+                .build())
+            .bodyValue("{\"idToken\": \"" + accessToken + "\"}")
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, error -> {
-                log.error("Kakao API 4xx Error: {}", error.statusCode());
+                log.error("Google API 4xx Error: {}", error.statusCode());
                 return error.createException();
             })
             .onStatus(HttpStatusCode::is5xxServerError, error -> {
-                log.error("Kakao API 5xx Error: {}", error.statusCode());
+                log.error("Google API 5xx Error: {}", error.statusCode());
                 return error.createException();
             })
-            .toEntity(KakaoUserInfoResponse.class)
+            .toEntity(GoogleUserInfoResponse.class)
             .block();
 
         if (response == null) {
-            throw new RuntimeException("Kakao API response is null");
+            throw new RuntimeException("Google API response is null");
         }
         if (response.getBody() == null) {
-            throw new RuntimeException("Kakao API response body is null");
+            throw new RuntimeException("Google API response body is null");
         }
 
         return response.getBody();

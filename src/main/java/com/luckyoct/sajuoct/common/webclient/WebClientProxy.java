@@ -1,8 +1,8 @@
 package com.luckyoct.sajuoct.common.webclient;
 
-import com.luckyoct.sajuoct.user.dto.kakao.SocialUserInfoResponse;
+import com.luckyoct.sajuoct.user.dto.SocialUserInfoResponse;
 
-public abstract class WebClientProxy {
+public interface WebClientProxy {
 
-    public abstract SocialUserInfoResponse getUserInfo(String accessToken);
+    SocialUserInfoResponse getUserInfo(String accessToken);
 }
