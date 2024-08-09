@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProfileWriteRequest {
+public class ProfileDto {
 
     private String name;
     private Integer sex;
