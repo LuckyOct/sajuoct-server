@@ -39,4 +39,10 @@ public class UserService {
         user.setAgreeToReceiveMarketing(termsAgreement.isMarketing());
         userRepository.save(user);
     }
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException(
+                String.format("User not found, userId : %d", userId)));
+    }
 }

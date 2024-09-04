@@ -1,20 +1,17 @@
 package com.luckyoct.sajuoct.profile.dto;
 
 
-import jakarta.annotation.Nullable;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProfileUpsertRequest {
+@Builder
+public class ProfileViewList {
 
-    private Long userId;
-    @Nullable
-    private Long profileId;
-    private ProfileUpsertDetail profile;
+    private List<ProfileView> profiles;
 }

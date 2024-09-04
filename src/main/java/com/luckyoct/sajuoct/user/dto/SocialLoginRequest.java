@@ -1,6 +1,6 @@
 package com.luckyoct.sajuoct.user.dto;
 
-import com.luckyoct.sajuoct.profile.dto.ProfileDto;
+import com.luckyoct.sajuoct.profile.dto.ProfileUpsertDetail;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,5 +15,5 @@ public class SocialLoginRequest {
     private String accessToken;
     private LoginType loginType;
     private TermsAgreement termsAgreement;
-    private ProfileDto profile;
+    private ProfileUpsertDetail profile;
 }
