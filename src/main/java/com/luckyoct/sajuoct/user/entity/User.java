@@ -6,6 +6,8 @@ import com.luckyoct.sajuoct.user.dto.LoginType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,7 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Table(name = "user")
+@Table(name = "users")
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,6 +36,7 @@ public class User extends BaseEntity {
     private Long userId;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
     @Column
