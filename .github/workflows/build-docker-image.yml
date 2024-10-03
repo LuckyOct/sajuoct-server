@@ -2,19 +2,15 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "cicd-test" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       # 1. Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4.2.0
-
 
       # 2. Set up Docker Buildx
       - name: Set up Docker Buildx
@@ -38,3 +34,28 @@ jobs:
       # 5. Optional: Log out from Docker Hub (보안 차원에서 로그아웃)
       - name: Log out from Docker Hub
         run: docker logout
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup ssh
+        uses: webfactory/ssh-agent@v0.10.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy application via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            # Pull the Docker image from Docker Hub
+            docker pull jh981113/sajuoct:latest
+          
+            # Stop and remove the existing container if it's running
+            docker stop java-app || true
+            docker rm java-app || true
+          
+            # Run the new Docker container
+            docker run -d --name java-app -p 80:8080 jh981113/sajuoct:latest
+          
+            # Check the container status
+            docker ps -a
+          EOF
