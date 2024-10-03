@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Automated CI/CD pipeline
 
 on:
   push:
@@ -38,8 +38,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: setup ssh
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
